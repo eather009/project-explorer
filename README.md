@@ -1,6 +1,12 @@
 # project-explorer
 Project Explorer will give you flexible access of your project from htdocs. This is a light application for exploring projects. This will help you by search facility, portal add/edit/remove facility. Portals facility will give you fast access to check any portal of the individual project. Portal list are saved into browser cookie.
 
+# Used
+
+1. PHP 5.3
+2. Angular JS - v1.3.13
+3. Bootstrap - v3.3.4
+
 # Features
 Following features will be available in version 1
 
