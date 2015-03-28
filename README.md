@@ -1,5 +1,5 @@
 # project-explorer
-Project Explorer will give you flexible access of your project from htdocs. This is a light application for exploring projects. This will help you by search facility, portal add facility. portal add facility will give you fast access to check any portal of the individual project. Portal list are added on browser cookie.
+Project Explorer will give you flexible access of your project from htdocs. This is a light application for exploring projects. This will help you by search facility, portal add/edit/remove facility. Portals facility will give you fast access to check any portal of the individual project. Portal list are saved into browser cookie.
 
 # Features
 Following features will be available in version 1
