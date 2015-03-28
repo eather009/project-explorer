@@ -9,7 +9,7 @@ Following features will be available in version 1
 3. Add/Edit/Remove portals
 
 
-# Requirements
+# Configuration
 
 1. Update BASE_URL from config.php
 2. Update BASE_DIR from config.php
