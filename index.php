@@ -17,13 +17,14 @@
     <body ng-app="myModule" ng-controller="Dirs">
         <?php
 
-            $dirs = scandir('../');
+            chdir('../');
+            $dirs = glob('*');
             $allData = array();
             if (!empty($dirs)) {
                 
                 $i = 0;
                 foreach ($dirs as $index => $folder) {
-                    if ($folder == '.')
+                    if ($folder == '.' || $folder == basename(dirname(__FILE__)))
                         continue;
                     //$fStat = stat($folder);
                     if (is_file($folder)) {
@@ -146,8 +147,9 @@
                                             $scope.portal = '';
                                             $scope.launch = function (id) {
                                                 var dlg = null;
-                                                var url = data[id].url;
-                                                dlg = $dialogs.create('/dialogs/whatsyourportal.html', 'whatsYourPortalCtrl', {url}, {key: false, back: 'static'});
+                                                var url = (data[id].url)?data[id].url:'';
+                                                
+                                                dlg = $dialogs.create('/dialogs/whatsyourportal.html', 'whatsYourPortalCtrl', {url:url}, {key: false, back: 'static'});
                                                 dlg.result.then(function (value) {
                                                     data[id].portal = (data[id].portal) + (((data[id].portal != '') ? ' | ' : '') + ("<a target='_blank' href='" + '/' + value.portal_url_full + "'><small><em>" + value.portal + "</em></small></a>"));
                                                     
@@ -216,7 +218,7 @@
                                             });
 
                                         }).controller('whatsYourPortalCtrl', function ($scope, $modalInstance,data) {
-                                            $scope.user = {portal: '', portal_url: '', portal_url_full:(data.url + '/')};
+                                            $scope.user = {portal: '', portal_url: '', portal_url_full:( data.url+'/')};
 
                                             $scope.cancel = function () {
                                                 $modalInstance.dismiss('canceled');
@@ -233,8 +235,7 @@
                                                 if (angular.equals(evt.keyCode, 13) && !(angular.equals($scope.portal_url_full, null) || angular.equals($scope.portal_url_full, '')))
                                                     $scope.save();
                                             }; // end hitEnter
-                                        }) // end whatsYourPortalCtrl
-                                            .run(['$templateCache', function ($templateCache) {
+                                        }).run(['$templateCache', function ($templateCache) {
                                                     $templateCache.put('/dialogs/whatsyourportal.html', '<div class="modal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title"><span class="glyphicon glyphicon-sunglasses"></span> Portal </h4></div><div class="modal-body"><ng-form name="portalDialog" novalidate role="form"><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal.$dirty && portalDialog.portal.$invalid]"><label class="control-label" for="portal">Portal Name:</label><input type="text" class="form-control" name="portal" id="portal" ng-model="user.portal" required></div><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal_url.$dirty && portalDialog.portal_url.$invalid]"><label class="control-label" for="portal_url">Portal Url:</label><input type="text" class="form-control" name="portal_url" id="portal_url" ng-model="user.portal_url" ng-keyup="hitEnter($event)" ><span class="help-block">Enter path name which is after project folder name.</span></div><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal_url_full.$dirty && portalDialog.portal_url_full.$invalid]"><label class="control-label" for="portal_url_full">Full URL:</label><input type="text" class="form-control" name="portal_url_full" id="portal_url_full" ng-model="user.portal_url_full" keyup="hitEnter($event)" required><span class="help-block">Or Edit for Custom URL.</span></div></ng-form></div><div class="modal-footer"><button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button><button type="button" class="btn btn-primary" ng-click="save()" ng-disabled="(portalDialog.$dirty && portalDialog.$invalid) || portalDialog.$pristine">Save</button></div></div></div></div>');
                                                 }]); // end run / module;
         </script>
