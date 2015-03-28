@@ -1,3 +1,6 @@
+<?php
+    require_once './resource/config.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -16,12 +19,11 @@
     </head>
     <body ng-app="myModule" ng-controller="Dirs">
         <?php
-
             chdir('../');
             $dirs = glob('*');
             $allData = array();
             if (!empty($dirs)) {
-                
+
                 $i = 0;
                 foreach ($dirs as $index => $folder) {
                     if ($folder == '.' || $folder == basename(dirname(__FILE__)))
@@ -35,18 +37,23 @@
                         $ext = 'dir';
                     }
                     $portal = '';
-                    if(file_exists(trim($folder).'/admin/index.php')){
-                        $portal = "<a target='_blank' href='{$folder}/admin'><small><em>Admin</em></small></a>"; ;
-                    }
+//                    if(file_exists(trim($folder).'/admin/index.php')){
+//                        $portal = "<a target='_blank' href='{$folder}/admin'><small><em>Admin</em></small></a>"; ;
+//                    }
 
-                    $cookieList = $_COOKIE;
-                    foreach($cookieList as $key=>$value){
-                        if($key==$folder){
-                            $portal = $value;
+                    $cookieList = !empty($_COOKIE['cookie']) ? $_COOKIE['cookie'] : array();
+
+                    if (!empty($cookieList)) {
+                        foreach ($cookieList as $key => $value) {
+                            if ($key == $folder) {
+                                foreach ($value as $portalName => $portalUrl) {
+                                    $portal .= (!empty($portal) ? ', ' : '') . $portalUrl;
+                                }
+                            }
                         }
                     }
 
-                    
+
                     $allData[] = array('index' => $i++, 'portal' => $portal, 'ftype' => $ext, 'url' => trim($folder));
                 }
             }
@@ -107,12 +114,12 @@
                                 <input type="text" ng-model="filter.ftype" placeholder="Search by File Type" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />
                             </div>
                         </div>
-<!--                        <div class="form-group">
-                            <label for="SearchbyPortal" class="col-md-4 col-sm-4 control-label">Portal</label>
-                            <div class="col-md-6 col-sm-6">
-                                <input type="text" ng-model="filter.portal" placeholder="Search by Portal" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />
-                            </div>
-                        </div>-->
+                        <!--                        <div class="form-group">
+                                                    <label for="SearchbyPortal" class="col-md-4 col-sm-4 control-label">Portal</label>
+                                                    <div class="col-md-6 col-sm-6">
+                                                        <input type="text" ng-model="filter.portal" placeholder="Search by Portal" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />
+                                                    </div>
+                                                </div>-->
                     </form>
                 </div>
             </div>
@@ -123,7 +130,7 @@
                     <td sortable="'url'" data-title="'Project Name'" class='ftype ' style="background: url(resource/img/{{folder.ftype}}.png) left center no-repeat; width: 65%; "  ><a target="__blank" href='{{folder.url}}' >{{folder.url}}</a></td> 
                     <td data-title="'Type'" style="text-align:center;width: 10%; ">{{folder.ftype}}</td>
                     <td data-title="'Portals'"  style="text-align:center;width: 20%; ">
-                        <a ng-click="launch(folder.index)" class="btn btn-info btn-xs">Add Portals</a>
+                        <a ng-click="launch(folder.index)" class="btn btn-info btn-xs">Portals</a>
                         <div ng-bind-html="folder.portal" style="display: block;"></div>
                     </td>
                 </tr>
@@ -138,25 +145,44 @@
         <script src="./resource/js/dialogs.min.js" type="text/javascript"></script>
         <script src="./resource/js/ng-sanitize.js"></script>
         <script src="./resource/js/ng-table.js"></script>
+        <script src="./resource/js/angular-cookies.js"></script>
 
 
 
         <script>
-                                        var app = angular.module('myModule', ['ngTable', 'ui.bootstrap', 'dialogs', 'ngSanitize']).controller('Dirs', function ($scope, $filter, ngTableParams, $rootScope, $timeout, $dialogs) {
+                                        var app = angular.module('myModule', ['ngTable', 'ui.bootstrap', 'dialogs', 'ngCookies','ngSanitize']).controller('Dirs', function ($scope, $filter, ngTableParams, $rootScope, $timeout, $dialogs) {
                                             var data = <?php echo $jsonData; ?>;
                                             $scope.portal = '';
                                             $scope.launch = function (id) {
                                                 var dlg = null;
-                                                var url = (data[id].url)?data[id].url:'';
-                                                
-                                                dlg = $dialogs.create('/dialogs/whatsyourportal.html', 'whatsYourPortalCtrl', {url:url}, {key: false, back: 'static'});
+                                                var url = (data[id].url) ? data[id].url : '';
+
+                                                dlg = $dialogs.create('/dialogs/whatsyourportal.html', 'whatsYourPortalCtrl', {url: url}, {key: false, back: 'static'});
                                                 dlg.result.then(function (value) {
-                                                    data[id].portal = (data[id].portal) + (((data[id].portal != '') ? ' | ' : '') + ("<a target='_blank' href='" + '/' + value.portal_url_full + "'><small><em>" + value.portal + "</em></small></a>"));
-                                                    
-                                                    var date = new Date();
-                                                    date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000));
-                                                    var expires = "; expires=" + date.toGMTString();
-                                                    document.cookie = data[id].url + "=" + data[id].portal + expires + "; path=/";
+
+                                                var date = new Date();
+                                                date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000));
+                                                var expires = "; expires=" + date.toGMTString();
+                                                
+                                                if(value.portal_url_full!='')
+                                                    document.cookie = "cookie[" + data[id].url + "][" + value.portal + "]=" + "<a target='_blank' href='http://" + value.portal_url_full + "'><small><em>" + value.portal + "</em></small></a>" + expires + "; path=/";
+
+                                                var allcookies = document.cookie;
+                                                cookiearray = allcookies.split(';');
+                                                var urls = '';
+                                                for (var i in cookiearray)
+                                                {
+                                                    var cookieName = cookiearray[i].split('=');
+
+                                                    var matched = cookieName[0].indexOf("cookie[" + data[id].url + "]");
+                                                    if (matched >= 0 && cookieName!='') {
+                                                        urls += ((urls != '') ? ', ' : '') + cookiearray[i].replace(cookieName[0] + "=", "");
+                                                    } else {
+                                                    }
+
+                                                }
+
+                                                data[id].portal = urls;
 
                                                 }, function () {
                                                     $scope.portal = '';
@@ -201,25 +227,25 @@
                                                     var filteredData = params.filter() ?
                                                         $filter('filter')(data, params.filter()) :
                                                         data;
-                                                        
+
                                                     var orderedData = params.sorting() ?
                                                         $filter('orderBy')(filteredData, params.orderBy()) :
                                                         data;
 
-                                                        if(params.filter())
-                                                        {
-                                                            if(params.$params.page > Math.ceil(orderedData.length/params.$params.count))
-                                                                params.$params.page = 1;
-                                                        }
+                                                    if (params.filter())
+                                                    {
+                                                        if (params.$params.page > Math.ceil(orderedData.length / params.$params.count))
+                                                            params.$params.page = 1;
+                                                    }
                                                     params.total(orderedData.length); // set total for recalc pagination
                                                     $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
 //                                                    $defer.resolve(orderedData);
                                                 }
                                             });
 
-                                        }).controller('whatsYourPortalCtrl', function ($scope, $modalInstance,data) {
-                                            $scope.user = {portal: '', portal_url: '', portal_url_full:( data.url+'/')};
-
+                                        }).controller('whatsYourPortalCtrl',function ($scope, $modalInstance,$cookies, data) {
+                                            $scope.user = {portal: '', portal_url: '', dataurl: data.url, portal_url_full: ('<?php echo BASE_URL; ?>' + '/' + data.url + '/')};
+                                            
                                             $scope.cancel = function () {
                                                 $modalInstance.dismiss('canceled');
                                             }; // end cancel
@@ -228,16 +254,51 @@
                                                 $modalInstance.close($scope.user);
                                             }; // end save
 
+                                            $scope.remove = function () {
+                                                
+                                                if($scope.user.portal != ''){
+                                                    var allcookies = $cookies;
+                                                    cookiearray = Object.keys(allcookies);
+                                                    for (var i in cookiearray)
+                                                    {
+                                                        if (cookiearray[i].indexOf("cookie[" + $scope.user.dataurl + "]["+ $scope.user.portal + "]")>=0) {
+                                                            cookieStr = cookiearray[i] + "=" + escape('') + "; ";
+                                                            var today = new Date();
+                                                            var expr = new Date(today.getTime() + -1 * 24 * 60 * 60 * 1000);
+                                                            cookieStr += "expires=" + expr.toGMTString() + "; ";
+                                                            cookieStr += "path=" + '/' + "; ";
+                                                            document.cookie = cookieStr;
+                                                        } 
+
+                                                    }
+
+                                                    $scope.user.portal_url_full = ''; 
+
+                                                    $modalInstance.close($scope.user);
+                                                }else{
+                                                    
+                                                }
+                                            }; // end save
+                                            $scope.hitDelete = function (evt) {
+                                                console.log($scope);
+                                                if (angular.equals(evt.keyCode, 13) && !(angular.equals($scope.portal, null)))
+                                                    $scope.remove();
+
+                                            };
                                             $scope.hitEnter = function (evt) {
-                                                if($scope.user.portal_url.length>0)$scope.user.portal_url_full = data.url + '/' + $scope.user.portal_url;
-                                                else $scope.user.portal_url_full = data.url + '/';
+                                                if ($scope.user.portal_url.length > 0)
+                                                    $scope.user.portal_url_full = '<?php echo BASE_URL; ?>' + '/' + data.url + '/' + $scope.user.portal_url;
+                                                else
+                                                    $scope.user.portal_url_full = '<?php echo BASE_URL; ?>' + '/' + data.url + '/';
 
                                                 if (angular.equals(evt.keyCode, 13) && !(angular.equals($scope.portal_url_full, null) || angular.equals($scope.portal_url_full, '')))
                                                     $scope.save();
+
                                             }; // end hitEnter
+
                                         }).run(['$templateCache', function ($templateCache) {
-                                                    $templateCache.put('/dialogs/whatsyourportal.html', '<div class="modal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title"><span class="glyphicon glyphicon-sunglasses"></span> Portal </h4></div><div class="modal-body"><ng-form name="portalDialog" novalidate role="form"><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal.$dirty && portalDialog.portal.$invalid]"><label class="control-label" for="portal">Portal Name:</label><input type="text" class="form-control" name="portal" id="portal" ng-model="user.portal" required></div><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal_url.$dirty && portalDialog.portal_url.$invalid]"><label class="control-label" for="portal_url">Portal Url:</label><input type="text" class="form-control" name="portal_url" id="portal_url" ng-model="user.portal_url" ng-keyup="hitEnter($event)" ><span class="help-block">Enter path name which is after project folder name.</span></div><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal_url_full.$dirty && portalDialog.portal_url_full.$invalid]"><label class="control-label" for="portal_url_full">Full URL:</label><input type="text" class="form-control" name="portal_url_full" id="portal_url_full" ng-model="user.portal_url_full" keyup="hitEnter($event)" required><span class="help-block">Or Edit for Custom URL.</span></div></ng-form></div><div class="modal-footer"><button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button><button type="button" class="btn btn-primary" ng-click="save()" ng-disabled="(portalDialog.$dirty && portalDialog.$invalid) || portalDialog.$pristine">Save</button></div></div></div></div>');
-                                                }]); // end run / module;
+                                                $templateCache.put('/dialogs/whatsyourportal.html', '<div class="modal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title"><span class="glyphicon glyphicon-sunglasses"></span> Portal </h4></div><div class="modal-body"><div class="alert alert-warning">Duplicate Portal will be replaced!</div><ng-form name="portalDialog" novalidate role="form"><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal.$dirty && portalDialog.portal.$invalid]"><label class="control-label" for="portal">Portal Name:</label><input type="text" class="form-control" name="portal" id="portal" ng-model="user.portal" required><span class="help-block label label-warning">Click on Delete to delete this portal.</span></div><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal_url.$dirty && portalDialog.portal_url.$invalid]"><label class="control-label" for="portal_url">Portal Url:</label><input type="text" class="form-control" name="portal_url" id="portal_url" ng-model="user.portal_url" ng-keyup="hitEnter($event)" ></div><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[portalDialog.portal_url_full.$dirty && portalDialog.portal_url_full.$invalid]"><label class="control-label" for="portal_url_full">Full URL:</label><input type="text" class="form-control" name="portal_url_full" id="portal_url_full" ng-model="user.portal_url_full" keyup="hitEnter($event)" required><span class="help-block">You can modify URL.</span></div></ng-form></div><div class="modal-footer"><button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button><button type="button" class="btn btn-primary" ng-click="save()" ng-disabled="(portalDialog.$dirty && portalDialog.$invalid) || portalDialog.$pristine">Save</button><button type="button" class="btn btn-danger" ng-disabled="(portalDialog.portal.$invalid) || portalDialog.$pristine" ng-click="remove()" >Delete</button></div></div></div></div>');
+                                            }]); // end run / module;
         </script>
     </body>
 </html>
