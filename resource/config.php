@@ -7,3 +7,4 @@
  */
 
 define("BASE_URL",'localhost');
+define("BASE_DIR",'../');
