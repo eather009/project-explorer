@@ -19,7 +19,7 @@
     </head>
     <body ng-app="myModule" ng-controller="Dirs">
         <?php
-            chdir('../');
+            chdir(BASE_DIR);
             $dirs = glob('*');
             $allData = array();
             if (!empty($dirs)) {
@@ -127,7 +127,7 @@
             <table ng-table="tableParams" class="table">
                 <tr ng-repeat="folder in $data">
                     <td data-title="'SI.'" sortable="'index'" style="text-align:center;width: 5%; ">{{$index + ((tableParams.page() - 1) * tableParams.count()) + 1}}</td>
-                    <td sortable="'url'" data-title="'Project Name'" class='ftype ' style="background: url(resource/img/{{folder.ftype}}.png) left center no-repeat; width: 65%; "  ><a target="__blank" href='{{folder.url}}' >{{folder.url}}</a></td> 
+                    <td sortable="'url'" data-title="'Project Name'" class='ftype ' style="background: url(resource/img/{{folder.ftype}}.png) left center no-repeat; width: 65%; "  ><a target="__blank" href='http://<?php echo BASE_URL . '/'?>{{folder.url}}' >{{folder.url}}</a></td> 
                     <td data-title="'Type'" style="text-align:center;width: 10%; ">{{folder.ftype}}</td>
                     <td data-title="'Portals'"  style="text-align:center;width: 20%; ">
                         <a ng-click="launch(folder.index)" class="btn btn-info btn-xs">Portals</a>
@@ -164,6 +164,7 @@
                                                 date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000));
                                                 var expires = "; expires=" + date.toGMTString();
                                                 
+                                                value.portal = value.portal.toUpperCase();
                                                 if(value.portal_url_full!='')
                                                     document.cookie = "cookie[" + data[id].url + "][" + value.portal + "]=" + "<a target='_blank' href='http://" + value.portal_url_full + "'><small><em>" + value.portal + "</em></small></a>" + expires + "; path=/";
 
@@ -255,7 +256,7 @@
                                             }; // end save
 
                                             $scope.remove = function () {
-                                                
+                                                $scope.user.portal = $scope.user.portal.toUpperCase();
                                                 if($scope.user.portal != ''){
                                                     var allcookies = $cookies;
                                                     cookiearray = Object.keys(allcookies);

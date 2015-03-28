@@ -8,5 +8,11 @@ Following features will be available in version 1
 2. Search by project, filetype
 3. Add/Edit/Remove portals
 
+
+# Requirements
+
+1. Update BASE_URL from config.php
+2. Update BASE_DIR from config.php
+
 Hope you will like this. You can Fork and contribute for any modifications or issue fixing.
 Thank you
