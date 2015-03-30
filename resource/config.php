@@ -6,5 +6,5 @@
  * and open the template in the editor.
  */
 
-define("BASE_URL",'localhost');
+define("BASE_URL",$_SERVER['SERVER_ADDR']);
 define("BASE_DIR",'../');
