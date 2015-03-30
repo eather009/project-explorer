@@ -88,7 +88,7 @@
                             <input type="text" ng-model="filter.ftype" placeholder="Search by File Type" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />
                         </div>
                         <div class="form-group">
-
+                            <input type="text" ng-model="filter.portal" placeholder="Search by Portal" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />  
                         </div>
                     </form>
                 </div><!-- /.navbar-collapse -->
@@ -102,36 +102,37 @@
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
-                        <div class="form-group left col-md-6 col-sm-6">
-                            <label for="SearchbyProjectName" class="col-md-4 col-sm-6 control-label">Project Name</label>
-                            <div class="col-md-8 col-sm-6">
+                        <div class="form-group col-md-4 col-sm-4">
+                            <label for="SearchbyProjectName" class="col-md-6 col-sm-6 control-label">Project Name</label>
+                            <div class="col-md-6 col-sm-6">
                                 <input type="text" ng-model="filter.url" placeholder="Search by Project Name" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />
                             </div>
                         </div>
-                        <div class="form-group col-md-6 col-sm-6">
-                            <label for="SearchbyFileType" class="col-md-4 col-sm-6 control-label">File Type</label>
-                            <div class="col-md-8 col-sm-6">
+                        <div class="form-group col-md-4 col-sm-4">
+                            <label for="SearchbyFileType" class="col-md-5 col-sm-6 control-label">File Type</label>
+                            <div class="col-md-7 col-sm-6">
                                 <input type="text" ng-model="filter.ftype" placeholder="Search by File Type" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />
                             </div>
                         </div>
-                        <!--                        <div class="form-group">
-                                                    <label for="SearchbyPortal" class="col-md-4 col-sm-4 control-label">Portal</label>
-                                                    <div class="col-md-6 col-sm-6">
-                                                        <input type="text" ng-model="filter.portal" placeholder="Search by Portal" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />
-                                                    </div>
-                                                </div>-->
+                        <div class="form-group col-md-4 col-sm-4">
+                            <label for="SearchbyFilePortal" class="col-md-5 col-sm-6 control-label">Portal</label>
+                            <div class="col-md-7 col-sm-6">
+                                <input type="text" ng-model="filter.portal" placeholder="Search by Portal" class="input-filter form-control ng-pristine ng-valid ng-scope ng-touched" />
+                            </div>
+                        </div>
+                        
                     </form>
                 </div>
             </div>
 
             <table ng-table="tableParams" class="table">
-                <tr ng-repeat="folder in $data">
+                <tr ng-repeat="folder in $data" >
                     <td data-title="'SI.'" sortable="'index'" style="text-align:center;width: 5%; ">{{$index + ((tableParams.page() - 1) * tableParams.count()) + 1}}</td>
                     <td sortable="'url'" data-title="'Project Name'" class='ftype ' style="background: url(resource/img/{{folder.ftype}}.png) left center no-repeat; width: 65%; "  ><a target="__blank" href='http://<?php echo BASE_URL . '/'?>{{folder.url}}' >{{folder.url}}</a></td> 
                     <td data-title="'Type'" style="text-align:center;width: 10%; ">{{folder.ftype}}</td>
                     <td data-title="'Portals'"  style="text-align:center;width: 20%; ">
-                        <a ng-click="launch(folder.index)" class="btn btn-info btn-xs">Portals</a>
-                        <div ng-bind-html="folder.portal" style="display: block;"></div>
+                        <div ng-bind-html="folder.portal" style="display: inline;"></div>
+                        <a ng-click="launch(folder.index)" class="btn btn-info btn-xs">Portal</a>
                     </td>
                 </tr>
             </table>
@@ -161,7 +162,7 @@
                                                 dlg.result.then(function (value) {
 
                                                 var date = new Date();
-                                                date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000));
+                                                date.setTime(date.getTime() + (90 * 24 * 60 * 60 * 1000));
                                                 var expires = "; expires=" + date.toGMTString();
                                                 
                                                 value.portal = value.portal.toUpperCase();
