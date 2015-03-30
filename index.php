@@ -7,7 +7,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
+        <link rel="shortcut icon" href="./resource/img/favicon.ico" type="image/x-icon" />
         <title>Project Explorer</title>
         <link rel="stylesheet" href="./resource/css/bootstrap.min.css">
         <link rel="stylesheet" href="./resource/css/bootstrap-theme.min.css">
@@ -125,7 +125,7 @@
                 </div>
             </div>
 
-            <table ng-table="tableParams" class="table">
+            <table ng-table="tableParams" class="table table-striped">
                 <tr ng-repeat="folder in $data" >
                     <td data-title="'SI.'" sortable="'index'" style="text-align:center;width: 5%; ">{{$index + ((tableParams.page() - 1) * tableParams.count()) + 1}}</td>
                     <td sortable="'url'" data-title="'Project Name'" class='ftype ' style="background: url(resource/img/{{folder.ftype}}.png) left center no-repeat; width: 65%; "  ><a target="__blank" href='http://<?php echo BASE_URL . '/'?>{{folder.url}}' >{{folder.url}}</a></td> 
